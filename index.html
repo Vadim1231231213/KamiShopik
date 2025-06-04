@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP-Лояльность FunPay</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .user-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .progress-container {
+            margin: 25px 0;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #dfe6e9;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .promo-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .promo-card {
+            background: var(--light);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .promo-code {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: var(--danger);
+            background: #ffeaa7;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .rules {
+            margin-top: 40px;
+        }
+        .rule {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+        .rule:hover {
+            transform: translateY(-3px);
+        }
+        .rule-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .rule-title {
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .rule-level {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .test-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌟 VIP-Программа лояльности FunPay</h1>
+            <p>Покупайте больше - получайте эксклюзивные выгоды!</p>
+        </header>
+        
+        <div class="user-card">
+            <h2>Ваш статус</h2>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalPurchases">0</div>
+                    <div class="stat-label">Всего покупок</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalAmount">0</div>
+                    <div class="stat-label">Общая сумма (руб)</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="currentLevelValue">0</div>
+                    <div class="stat-label">Текущий уровень</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>0</span>
+                    <span id="nextLevelLabel">5 покупок</span>
+                </div>
+            </div>
+            
+            <div>
+                Статус: <span class="level-badge" id="currentLevel">Новичок</span>
+            </div>
+        </div>
+
+        <div class="promo-section hidden" id="promoSection">
+            <h2>🎁 Ваши активные бонусы</h2>
+            <div id="promoList"></div>
+        </div>
+
+        <div class="rules">
+            <h2>📜 Уровни лояльности</h2>
+            
+            <!-- Правила будут добавлены через JavaScript -->
+            <div id="rulesList"></div>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="btn" onclick="simulatePurchase(5, 25)">Тест: 5 покупок (25 руб)</button>
+            <button class="btn" onclick="simulatePurchase(20, 1000)">Тест: 20 покупок (1000 руб)</button>
+            <button class="btn" onclick="simulatePurchase(100, 5000)">Тест: 100 покупок (5000 руб)</button>
+            <button class="btn" onclick="resetData()">Сбросить данные</button>
+        </div>
+    </div>
+
+    <script>
+        // Парсим параметры URL для интеграции с FunPay
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id') || 'user_' + Math.floor(Math.random() * 10000);
+        const refSource = urlParams.get('ref') || 'direct';
+        
+        // Все 21 уровень лояльности
+        const loyaltyLevels = [
+            { level: 1, purchases: 5, amount: 25, 
+              reward: "Скидка 3% на следующий товар", 
+              code: "LEVEL1_3PERCENT" },
+            
+            { level: 2, purchases: 10, amount: 100, 
+              reward: "Скидка 10 рублей на следующий товар", 
+              code: "LEVEL2_10RUB" },
+            
+            { level: 3, purchases: 15, amount: 300, 
+              reward: "Скидка 20 рублей на следующий товар", 
+              code: "LEVEL3_20RUB" },
+            
+            { level: 4, purchases: 20, amount: 1000, 
+              reward: "Скидка 50 рублей (макс. чек 1000 руб)", 
+              code: "LEVEL4_50RUB" },
+            
+            { level: 5, purchases: 25, amount: 750, 
+              reward: "Скидка 10% на один из следующих заказов", 
+              code: "LEVEL5_10PERCENT" },
+            
+            { level: 6, purchases: 30, amount: 3000, 
+              reward: "Скидка 100 рублей на любой товар", 
+              code: "LEVEL6_100RUB" },
+            
+            { level: 7, purchases: 40, amount: 400, 
+              reward: "Каждый 5-й товар бесплатно", 
+              code: "LEVEL7_FREE5" },
+            
+            { level: 8, purchases: 50, amount: 1000, 
+              reward: "Скидка 200 рублей на общий заказ", 
+              code: "LEVEL8_200RUB" },
+            
+            { level: 9, purchases: 60, amount: 1500, 
+              reward: "Скидка 15% на следующий заказ", 
+              code: "LEVEL9_15PERCENT" },
+            
+            { level: 10, purchases: 70, amount: 1050, 
+              reward: "Скидка 150 рублей на любой товар", 
+              code: "LEVEL10_150RUB" },
+            
+            { level: 11, purchases: 80, amount: 2400, 
+              reward: "Бесплатный бонусный товар", 
+              code: "LEVEL11_FREEGIFT" },
+            
+            { level: 12, purchases: 90, amount: 3600, 
+              reward: "Скидка 300 рублей на всё", 
+              code: "LEVEL12_300RUB" },
+            
+            { level: 13, purchases: 100, amount: 5000, 
+              reward: "Промокод на 100 рублей", 
+              code: "LEVEL13_100PROMO" },
+            
+            { level: 14, purchases: 120, amount: 7200, 
+              reward: "2 товара в подарок", 
+              code: "LEVEL14_2FREE" },
+            
+            { level: 15, purchases: 150, amount: 10500, 
+              reward: "Скидка 500 рублей на следующий заказ", 
+              code: "LEVEL15_500RUB" },
+            
+            { level: 16, purchases: 200, amount: 20000, 
+              reward: "Промокод на любой товар до 300 руб", 
+              code: "LEVEL16_300PROMO" },
+            
+            { level: 17, purchases: 250, amount: 20000, 
+              reward: "Скидка 10% на три заказа", 
+              code: "LEVEL17_10PERCENT3" },
+            
+            { level: 18, purchases: 300, amount: 27000, 
+              reward: "Скидка 1000 рублей на всё", 
+              code: "LEVEL18_1000RUB" },
+            
+            { level: 19, purchases: 350, amount: 35000, 
+              reward: "Безлимитный промокод на 24 часа", 
+              code: "LEVEL19_UNLIMITED" },
+            
+            { level: 20, purchases: 500, amount: 75000, 
+              reward: "Персональный прайс и VIP-статус", 
+              code: "LEVEL20_VIP" },
+            
+            { level: 21, purchases: 100, amount: 10000, 
+              reward: "Любой товар + VIP-статус", 
+              code: "LEVEL21_VIPGIFT" }
+        ];
+
+        // Загружаем или создаем данные пользователя
+        let userData = JSON.parse(localStorage.getItem(userId)) || {
+            id: userId,
+            totalPurchases: 0,
+            totalAmount: 0,
+            promoCodes: [],
+            refSource: refSource,
+            lastPurchase: null
+        };
+
+        // Инициализация страницы
+        function initPage() {
+            // Отображаем правила
+            const rulesList = document.getElementById('rulesList');
+            rulesList.innerHTML = '';
+            
+            loyaltyLevels.forEach(rule => {
+                const ruleElement = document.createElement('div');
+                ruleElement.className = 'rule';
+                
+                ruleElement.innerHTML = `
+                    <div class="rule-header">
+                        <span class="rule-title">Уровень ${rule.level}: ${rule.purchases} покупок × ${rule.amount/rule.purchases} руб</span>
+                        <span class="rule-level">${rule.purchases} шт / ${rule.amount} руб</span>
+                    </div>
+                    <div>${rule.reward} <span class="promo-code">${rule.code}</span></div>
+                `;
+                
+                rulesList.appendChild(ruleElement);
+            });
+            
+            updateUI();
+        }
+
+        // Обновляем данные на странице
+        function updateUI() {
+            document.getElementById('totalPurchases').textContent = userData.totalPurchases;
+            document.getElementById('totalAmount').textContent = userData.totalAmount.toLocaleString();
+            
+            checkLoyaltyLevel();
+        }
+
+        // Проверяем уровень лояльности
+        function checkLoyaltyLevel() {
+            let currentLevel = { level: 0, purchases: 0, amount: 0 };
+            let nextLevel = loyaltyLevels[0];
+            let hasNewRewards = false;
+            
+            // Проверяем все уровни
+            loyaltyLevels.forEach(level => {
+                if (userData.totalPurchases >= level.purchases && 
+                    userData.totalAmount >= level.amount) {
+                    
+                    currentLevel = level;
+                    
+                    // Проверяем, есть ли у пользователя этот промокод
+                    if (!userData.promoCodes.includes(level.code)) {
+                        userData.promoCodes.push(level.code);
+                        hasNewRewards = true;
+                    }
+                } else if (!nextLevel && (userData.totalPurchases < level.purchases || 
+                          userData.totalAmount < level.amount)) {
+                    nextLevel = level;
+                }
+            });
+            
+            // Рассчитываем прогресс
+            let progress = 0;
+            if (nextLevel) {
+                const purchasesProgress = (userData.totalPurchases - currentLevel.purchases) / 
+                                         (nextLevel.purchases - currentLevel.purchases) * 100;
+                const amountProgress = (userData.totalAmount - currentLevel.amount) / 
+                                      (nextLevel.amount - currentLevel.amount) * 100;
+                progress = Math.min(100, Math.max(0, (purchasesProgress + amountProgress) / 2));
+                
+                document.getElementById('nextLevelLabel').textContent = 
+                    `${nextLevel.purchases} покупок / ${nextLevel.amount} руб`;
+            } else {
+                document.getElementById('nextLevelLabel').textContent = "Максимальный уровень!";
+                progress = 100;
+            }
+            
+            // Обновляем UI
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentLevel').textContent = 
+                currentLevel.level > 0 ? `Уровень ${currentLevel.level}` : "Новичок";
+            document.getElementById('currentLevelValue').textContent = 
+                currentLevel.level > 0 ? currentLevel.level : "0";
+            
+            // Показываем промокоды, если есть
+            if (userData.promoCodes.length > 0 || hasNewRewards) {
+                showPromoCodes();
+            }
+            
+            // Сохраняем данные
+            localStorage.setItem(userId, JSON.stringify(userData));
+        }
+
+        // Показываем промокоды
+        function showPromoCodes() {
+            const promoSection = document.getElementById('promoSection');
+            const promoList = document.getElementById('promoList');
+            
+            promoList.innerHTML = '';
+            
+            // Показываем только актуальные промокоды (по достигнутым уровням)
+            const activeLevels = loyaltyLevels.filter(level => 
+                userData.totalPurchases >= level.purchases && 
+                userData.totalAmount >= level.amount);
+            
+            activeLevels.forEach(level => {
+                if (userData.promoCodes.includes(level.code)) {
+                    const promoCard = document.createElement('div');
+                    promoCard.className = 'promo-card';
+                    
+                    promoCard.innerHTML = `
+                        <div>${level.reward}</div>
+                        <div class="promo-code">${level.code}</div>
+                    `;
+                    
+                    promoList.appendChild(promoCard);
+                }
+            });
+            
+            promoSection.classList.remove('hidden');
+        }
+
+        // Имитация покупки (для теста)
+        function simulatePurchase(items, amount) {
+            userData.totalPurchases += items;
+            userData.totalAmount += amount;
+            userData.lastPurchase = new Date().toISOString();
+            
+            updateUI();
+            
+            // Для реальной интеграции с FunPay:
+            console.log(`Запись покупки: ${items} товаров на ${amount} руб`);
+        }
+
+        // Сброс данных (для теста)
+        function resetData() {
+            userData = {
+                id: userId,
+                totalPurchases: 0,
+                totalAmount: 0,
+                promoCodes: [],
+                refSource: refSource,
+                lastPurchase: null
+            };
+            
+            localStorage.setItem(userId, JSON.stringify(userData));
+            updateUI();
+            document.getElementById('promoSection').classList.add('hidden');
+        }
+
+        // Инициализация при загрузке
+        initPage();
+        
+        // Для интеграции с FunPay
+        console.log(`Интеграция с FunPay. User ID: ${userId}, Source: ${refSource}`);
+        console.log("Для теста используйте simulatePurchase(количество, сумма)");
+    </script>
+</body>
+</html>
